@@ -15,7 +15,7 @@ void main() {
     r.expectLogoutDialogNotFound();
   });
 
-   testWidgets('logout success', (tester) async {
+  testWidgets('logout success', (tester) async {
     final r = AuthRobot(tester);
     await r.pumpAccountScreen();
     await r.tapLogOutButton();
@@ -25,18 +25,38 @@ void main() {
     r.expectErrorDialogNotFound();
   });
 
-     testWidgets('confirm logout, failure', (tester) async {
+  testWidgets('confirm logout, failure', (tester) async {
     final r = AuthRobot(tester);
     final authRepository = MockAuthRepository();
-    final exception =Exception('Connection Failed');
+    final exception = Exception('Connection Failed');
     when(authRepository.signOut).thenThrow(exception);
-    when(authRepository.authStateChanges).thenAnswer((_) => Stream.value(
-      const AppUser(uid: '123', email: 'test@test.com')
-    ));
+    when(authRepository.authStateChanges).thenAnswer(
+        (_) => Stream.value(const AppUser(uid: '123', email: 'test@test.com')));
     await r.pumpAccountScreen(authRepository: authRepository);
     await r.tapLogOutButton();
     r.expectLogoutDialogFound();
     await r.tapDiaLogLogoutButton();
     r.expectErrorDialogFound();
+  });
+
+  testWidgets('confirm logout, loading state', (tester) async {
+    final r = AuthRobot(tester);
+    final authRepository = MockAuthRepository();
+
+    when(authRepository.signOut).thenAnswer(
+      (_) => Future.delayed(
+        const Duration(seconds: 1),
+      ),
+    );
+    when(authRepository.authStateChanges).thenAnswer(
+        (_) => Stream.value(const AppUser(uid: '123', email: 'test@test.com')));
+
+    await r.pumpAccountScreen(authRepository: authRepository);
+    await tester.runAsync(() async {
+      await r.tapLogOutButton();
+      r.expectLogoutDialogFound();
+      await r.tapDiaLogLogoutButton();
+    });
+    r.expectCircularPorgressIndicatorFound();
   });
 }
