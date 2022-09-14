@@ -1,8 +1,10 @@
- import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 
-import '../robot.dart';
+import '../test/src/features/robot.dart';
 
 void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('sign-in and sign-out flow', (tester) async {
     final r = Robot(tester);
     await r.pumpMyApp();
@@ -17,5 +19,5 @@ void main() {
     r.auth.expectLogoutDialogFound();
     await r.auth.tapDiaLogLogoutButton();
     r.expectFindAllProductCards();
-  });  
+  });
 }
