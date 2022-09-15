@@ -10,13 +10,13 @@ void main() {
     await r.pumpMyApp();
     r.expectFindAllProductCards();
     await r.openPopupMenu();
-    await r.auth.openEmailandPasswordSignInScreen();
-    await r.auth.signInWithEmailandPassword();
+    await r.auth.openEmailPasswordSignInScreen();
+    await r.auth.signInWithEmailAndPassword();
     r.expectFindAllProductCards();
     await r.openPopupMenu();
     await r.auth.openAccountScreen();
-    await r.auth.tapLogOutButton();
-    await r.auth.tapDiaLogLogoutButton();
+    await r.auth.tapLogoutButton();
+    await r.auth.tapDialogLogoutButton();
     r.expectFindAllProductCards();
   });
 }
