@@ -11,12 +11,12 @@ class SembastCartRepository implements LocalCartRepository {
   final Database db;
   final store = StoreRef.main();
 
-  static Future<Database> createDatabase(String fileName) async {
+  static Future<Database> createDatabase(String filename) async {
     if (!kIsWeb) {
       final appDocDir = await getApplicationDocumentsDirectory();
-      return databaseFactoryIo.openDatabase('${appDocDir.path}/$fileName');
+      return databaseFactoryIo.openDatabase('${appDocDir.path}/$filename');
     } else {
-      return databaseFactoryWeb.openDatabase(fileName);
+      return databaseFactoryWeb.openDatabase(filename);
     }
   }
 
@@ -26,7 +26,6 @@ class SembastCartRepository implements LocalCartRepository {
 
   static const cartItemsKey = 'cartItems';
 
-  // * Read back from local storage with a future
   @override
   Future<Cart> fetchCart() async {
     final cartJson = await store.record(cartItemsKey).get(db) as String?;
@@ -37,13 +36,11 @@ class SembastCartRepository implements LocalCartRepository {
     }
   }
 
-  //! Store to local storage
   @override
   Future<void> setCart(Cart cart) {
     return store.record(cartItemsKey).put(db, cart.toJson());
   }
 
-  //? Watch the local storage with a stream
   @override
   Stream<Cart> watchCart() {
     final record = store.record(cartItemsKey);

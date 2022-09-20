@@ -15,66 +15,74 @@ void main() {
   setUpAll(() {
     registerFallbackValue(const Cart());
   });
-
   const testUser = AppUser(uid: 'abc');
 
   late MockAuthRepository authRepository;
-  late MockLocalCartRepository localCartRepository;
   late MockRemoteCartRepository remoteCartRepository;
-
+  late MockLocalCartRepository localCartRepository;
   setUp(() {
     authRepository = MockAuthRepository();
-    localCartRepository = MockLocalCartRepository();
     remoteCartRepository = MockRemoteCartRepository();
+    localCartRepository = MockLocalCartRepository();
   });
 
   CartService makeCartService() {
-    final container = ProviderContainer(overrides: [
-      authRepositoryProvider.overrideWithValue(authRepository),
-      localCartRepositoryProvider.overrideWithValue(localCartRepository),
-      remoteCartRepositoryProvider.overrideWithValue(remoteCartRepository)
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(authRepository),
+        localCartRepositoryProvider.overrideWithValue(localCartRepository),
+        remoteCartRepositoryProvider.overrideWithValue(remoteCartRepository),
+      ],
+    );
     addTearDown(container.dispose);
     return container.read(cartServiceProvider);
   }
 
   group('setItem', () {
-    test('null user writes item to local cart', () async {
+    test('null user, writes item to local cart', () async {
+      // setup
       const expectedCart = Cart({'123': 1});
-
       when(() => authRepository.currentUser).thenReturn(null);
-      when(localCartRepository.fetchCart)
-          .thenAnswer((_) => Future.value(const Cart()));
-      when(() => localCartRepository.setCart(expectedCart))
-          .thenAnswer((_) => Future.value());
-
+      when(localCartRepository.fetchCart).thenAnswer(
+        (_) => Future.value(const Cart()),
+      );
+      when(() => localCartRepository.setCart(expectedCart)).thenAnswer(
+        (_) => Future.value(),
+      );
       final cartService = makeCartService();
-
-      await cartService.setItem(const Item(productId: '123', quantity: 1));
-
-      verify(() => localCartRepository.setCart(expectedCart)).called(1);
-
+      // run
+      await cartService.setItem(
+        const Item(productId: '123', quantity: 1),
+      );
+      // verify
+      verify(
+        () => localCartRepository.setCart(expectedCart),
+      ).called(1);
       verifyNever(
         () => remoteCartRepository.setCart(any(), any()),
       );
     });
 
-    test('non-null user writes item to remote cart', () async {
+    test('non-null user, writes item to remote cart', () async {
+      // setup
       const expectedCart = Cart({'123': 1});
-
       when(() => authRepository.currentUser).thenReturn(testUser);
-      when(() => remoteCartRepository.fetchCart(testUser.uid))
-          .thenAnswer((_) => Future.value(const Cart()));
+      when(() => remoteCartRepository.fetchCart(testUser.uid)).thenAnswer(
+        (_) => Future.value(const Cart()),
+      );
       when(() => remoteCartRepository.setCart(testUser.uid, expectedCart))
-          .thenAnswer((_) => Future.value());
-
+          .thenAnswer(
+        (_) => Future.value(),
+      );
       final cartService = makeCartService();
-
-      await cartService.setItem(const Item(productId: '123', quantity: 1));
-
-      verify(() => remoteCartRepository.setCart(testUser.uid, expectedCart))
-          .called(1);
-
+      // run
+      await cartService.setItem(
+        const Item(productId: '123', quantity: 1),
+      );
+      // verify
+      verify(
+        () => remoteCartRepository.setCart(testUser.uid, expectedCart),
+      ).called(1);
       verifyNever(
         () => localCartRepository.setCart(any()),
       );
@@ -144,7 +152,7 @@ void main() {
       );
       final cartService = makeCartService();
       // run
-      await cartService.removeProductById('123');
+      await cartService.removeItemById('123');
       // verify
       verify(
         () => localCartRepository.setCart(expectedCart),
@@ -168,7 +176,7 @@ void main() {
       );
       final cartService = makeCartService();
       // run
-      await cartService.removeProductById('123');
+      await cartService.removeItemById('123');
       // verify
       verifyNever(
         () => localCartRepository.setCart(any()),
