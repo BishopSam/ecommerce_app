@@ -9,6 +9,7 @@ import 'package:ecommerce_app/src/features/cart/data/remote/remote_cart_reposito
 import 'package:ecommerce_app/src/features/products/data/fake_products_repository.dart';
 import 'package:ecommerce_app/src/features/products/presentation/home_app_bar/more_menu_button.dart';
 import 'package:ecommerce_app/src/features/products/presentation/products_list/product_card.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -70,14 +71,14 @@ Future<void> pumpMyApp() async {
   }
 
   Future<void> closePage() async {
-    final finder = find.bySemanticsLabel('Close');
+    final finder = find.byIcon(Icons.close);
     expect(finder, findsOneWidget);
     await tester.tap(finder);
     await tester.pumpAndSettle();
   }
 
   Future<void> goBack() async {
-    final finder = find.bySemanticsLabel('Back');
+    final finder = find.byIcon(Icons.arrow_back);
     expect(finder, findsOneWidget);
     await tester.tap(finder);
     await tester.pumpAndSettle();
